@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.env.local
+supabase/.temp/
+supabase/.branches/
+test-results/
+playwright-report/
+crowdlens-qr.png
