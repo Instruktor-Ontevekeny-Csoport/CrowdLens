@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { FaInstagram, FaFacebookF, FaInfoCircle } from 'react-icons/fa'
 import { GROUPS, DAILY_LIMIT, PENDING_BUCKET } from '../lib/config.js'
 import { t, getLang, setLang, LANGS } from '../lib/i18n.js'
 import {
@@ -21,6 +22,7 @@ export default function App() {
   const [photo, setPhoto] = useState(null) // { blob, previewUrl }
   const [phase, setPhase] = useState('idle') // idle | preview | sending | success
   const [error, setError] = useState(null)
+  const [noticeOpen, setNoticeOpen] = useState(false)
   const cameraRef = useRef(null)
   const galleryRef = useRef(null)
 
@@ -206,9 +208,42 @@ export default function App() {
         🎞️ {tr('openGallery')}
       </a>
 
-      <footer>
-        <p className="consent">{tr('consent')}</p>
+      <footer className="footer-block">
+        <button type="button" className="consent-link" onClick={() => setNoticeOpen(true)}>
+          <FaInfoCircle aria-hidden="true" />
+          {tr('noticeLink')}
+        </button>
+
+        <div className="footer-logos" aria-label="Organizations">
+          <img className="org-logo iocs" src="/logos/iocs_white.png" alt="IÖCS logo" />
+          <img className="org-logo maki" src="/logos/makilogo.svg" alt="MAKI logo" />
+        </div>
+
+        <div className="footer-follow" aria-label="Follow us">
+          <span className="follow-text">{tr('officialPhotos')}</span>
+          <div className="social-links">
+            <a href="https://www.instagram.com/" target="_blank" rel="noreferrer" aria-label="Instagram">
+              <FaInstagram />
+            </a>
+            <a href="https://www.facebook.com/" target="_blank" rel="noreferrer" aria-label="Facebook">
+              <FaFacebookF />
+            </a>
+          </div>
+        </div>
       </footer>
+
+      {noticeOpen && (
+        <div className="notice-backdrop" onClick={() => setNoticeOpen(false)}>
+          <div className="notice-modal" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="notice-close" onClick={() => setNoticeOpen(false)} aria-label={tr('close')}>
+              ×
+            </button>
+
+            <h2>{tr('importantNotice')}</h2>
+            <p className="notice-text">{tr('consent')}</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

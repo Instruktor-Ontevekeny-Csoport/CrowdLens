@@ -25,7 +25,17 @@ const strings = {
     uploadError: 'A feltöltés nem sikerült. Ellenőrizd a netet és próbáld újra!',
     limitReachedServer: 'Elérted a napi limitet.',
     notAnImage: 'Ez nem képfájl — válassz fotót!',
-    consent: 'A beküldött fotókat a tábor galériájában és az aftermovie-ban használjuk fel. Beküldéssel ehhez hozzájárulsz. A fotókat a tábor után töröljük.',
+    consent: 'A fotó feltöltésével tudomásul veszed, hogy az általad feltöltött képet a Gólyatábor szervezői a közzététel előtt ellenőrzik. A szervezők fenntartják a jogot, hogy a nem megfelelő, mások személyiségi jogait sértő, kompromittáló vagy a Gólyatábor szellemiségével és a Semmelweis Egyetem etikai kódexével össze nem egyeztethető képeket töröljék.\n' +
+        '\n' +
+        'A feltöltött képek a Gólyatáborral kapcsolatos kommunikációs felületeken – így különösen a közösségi médiában és egyéb hivatalos felületeken – közzétételre kerülhetnek.\n' +
+        '\n' +
+        'A fotó feltöltésével kijelented, hogy a kép feltöltésére jogosult vagy, és annak feltöltésével, valamint a fentiek szerinti felhasználásával kapcsolatban harmadik személy jogát nem sérted.\n' +
+        '\n' +
+        'Naponta legfeljebb 3 képet tölthetsz fel.',
+    noticeLink: 'Fontos információ',
+    importantNotice: 'Fontos információ',
+    officialPhotos: 'Kövesd a MAKI-t a hivatalos fotókért',
+    orgName: 'MAKI',
     gallery: 'Galéria',
     openGallery: 'Galéria megtekintése',
     backToCamera: 'Vissza a kamerához',
@@ -58,7 +68,17 @@ const strings = {
     uploadError: 'Upload failed. Check your connection and try again!',
     limitReachedServer: 'You’ve reached the daily limit.',
     notAnImage: 'That’s not an image file — pick a photo!',
-    consent: 'Submitted photos are used in the camp gallery and the aftermovie. By submitting you consent to this. Photos are deleted after the camp.',
+    consent: 'By uploading a photo, you acknowledge that the photo you upload will be reviewed by the Freshman Camp organizers before it is published. The organizers reserve the right to delete any inappropriate photos, including those that violate the personal rights of others, are compromising or humiliating, or are inconsistent with the spirit of the Freshman Camp or the Code of Ethics of Semmelweis University.\n' +
+        '\n' +
+        'Uploaded photos may be published on communication channels related to the Freshman Camp, including, in particular, social media platforms and other official channels.\n' +
+        '\n' +
+        'By uploading a photo, you declare that you are authorized to upload the photo and that its upload and use as described above do not infringe upon the rights of any third party.\n' +
+        '\n' +
+        'You may upload a maximum of 3 photos per day.',
+    noticeLink: 'Important notice',
+    importantNotice: 'Important notice',
+    officialPhotos: 'Follow MAKI for the official photos',
+    orgName: 'MAKI',
     gallery: 'Gallery',
     openGallery: 'View the gallery',
     backToCamera: 'Back to the camera',

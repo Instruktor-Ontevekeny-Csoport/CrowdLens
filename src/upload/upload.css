@@ -319,10 +319,148 @@ body {
   font-weight: 700;
 }
 
-footer .consent {
-  color: #7a7269;
-  font-size: 0.75rem;
-  line-height: 1.4;
+footer {
+  margin-top: 8px;
+}
+
+.footer-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  margin: 8px 0 0;
+}
+
+.footer-logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  filter: invert(20%) sepia(48%);
+}
+
+.org-logo {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  display: block;
+}
+
+.org-logo.maki {
+  width: 64px;
+}
+
+.org-logo.iocs {
+}
+
+.footer-follow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.follow-text {
+  color: var(--text-dim);
+  font-size: 0.76rem;
+  line-height: 1.4;
+  filter: invert(20%) sepia(48%);
+}
+
+.social-links {
+  color: var(--text-dim);
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  filter: invert(20%) sepia(48%);
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--body-2);
+  border: 1px solid #4a453f;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.social-links svg {
+  display: block;
+}
+
+.consent-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #d5cabd;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 12px;
+}
+
+.consent-link svg {
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.notice-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 8, 8, 0.72);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 30;
+}
+
+.notice-modal {
+  position: relative;
+  width: min(420px, 100%);
+  background: var(--body);
+  border: 1px solid #4a453f;
+  border-radius: 18px;
+  padding: 24px 20px 20px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.notice-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #4a453f;
+  border-radius: 50%;
+  background: var(--body-2);
+  color: var(--text);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.notice-modal h2 {
+  margin: 0 0 12px;
+  font-size: 1.3rem;
+  color: var(--text);
+}
+
+.notice-text {
+  margin: 0;
+  color: var(--text-dim);
+  line-height: 1.6;
+  font-size: 0.95rem;
+  white-space: pre-line;
 }
