@@ -141,6 +141,15 @@ body {
   color: #666;
 }
 
+.lightbox-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
 .actions {
   display: flex;
 }

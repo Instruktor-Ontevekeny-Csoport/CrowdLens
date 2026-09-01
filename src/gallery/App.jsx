@@ -9,6 +9,10 @@ function publicUrl(storagePath) {
   return supabase.storage.from(APPROVED_BUCKET).getPublicUrl(path).data.publicUrl
 }
 
+function displayGroupName(photo) {
+  return photo.group_name
+}
+
 export default function App() {
   const [lang, setLangState] = useState(getLang())
   const [group, setGroup] = useState('all')
@@ -126,6 +130,10 @@ export default function App() {
               <button className="thumb" onClick={() => setLightbox(i)}>
                 <img src={publicUrl(p.storage_path)} alt={tr('photoAlt')} loading="lazy" />
               </button>
+              <p className="photo-meta">
+                <span>{displayGroupName(p)}</span>
+                <span>{new Date(p.created_at).toLocaleString()}</span>
+              </p>
             </li>
           ))}
         </ul>
@@ -156,6 +164,10 @@ export default function App() {
             </button>
           )}
           <img src={publicUrl(photos[lightbox].storage_path)} alt={tr('photoAlt')} />
+          <p className="lightbox-meta">
+            <span>{displayGroupName(photos[lightbox])}</span>
+            <span>{new Date(photos[lightbox].created_at).toLocaleString()}</span>
+          </p>
           {lightbox < photos.length - 1 && (
             <button
               className="nav next"
@@ -171,6 +183,10 @@ export default function App() {
           <button className="close" aria-label={tr('close')}>
             ✕
           </button>
+          <p className="lightbox-meta">
+            <span>{displayGroupName(photos[lightbox])}</span>
+            <span>{new Date(photos[lightbox].created_at).toLocaleString()}</span>
+          </p>
         </div>
       )}
     </div>

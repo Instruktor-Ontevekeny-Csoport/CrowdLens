@@ -13,6 +13,15 @@ import {
 
 const TOKEN = `test-mod-${Date.now()}`
 
+function slugifyGroup(name) {
+  return name
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 async function seedPending(name, group) {
   const path = `${name}.jpg`
   const { error: upErr } = await service.storage
@@ -101,14 +110,14 @@ test('staff logs in, approves one photo, rejects another', async ({ page }) => {
   const approved = rows.find((r) => r.id === approveMe.id)
   const rejected = rows.find((r) => r.id === rejectMe.id)
   expect(approved.status).toBe('approved')
-  expect(approved.storage_path).toBe(`approved/${G}/${TOKEN}-a.jpg`)
+  expect(approved.storage_path).toBe(`approved/${slugifyGroup(G)}/${TOKEN}-a.jpg`)
   expect(rejected.status).toBe('rejected')
   expect(rejected.storage_path).toBe(`pending/${TOKEN}-b.jpg`)
 
   // Approved photo is publicly reachable; rejected one is not in the public bucket.
-  const pub = service.storage.from('approved').getPublicUrl(`${G}/${TOKEN}-a.jpg`)
+  const pub = service.storage.from('approved').getPublicUrl(`${slugifyGroup(G)}/${TOKEN}-a.jpg`)
   expect((await fetch(pub.data.publicUrl)).ok).toBe(true)
-  const pubRej = service.storage.from('approved').getPublicUrl(`${G}/${TOKEN}-b.jpg`)
+  const pubRej = service.storage.from('approved').getPublicUrl(`${slugifyGroup(G)}/${TOKEN}-b.jpg`)
   expect((await fetch(pubRej.data.publicUrl)).ok).toBe(false)
 })
 
@@ -153,7 +162,7 @@ test('decisions can be reverted later from the approved/rejected tabs', async ({
 
   const { data: row } = await service.from('photos').select('*').eq('id', photo.id).single()
   expect(row.status).toBe('approved')
-  expect(row.storage_path).toBe(`approved/${G}/${TOKEN}-swap.jpg`)
+  expect(row.storage_path).toBe(`approved/${slugifyGroup(G)}/${TOKEN}-swap.jpg`)
 })
 
 test('lightbox arrows navigate and A/R shortcuts decide', async ({ page }) => {

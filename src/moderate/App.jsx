@@ -55,6 +55,19 @@ function baseFile(photo) {
   return photo.storage_path.split('/').pop()
 }
 
+function slugifyGroup(name) {
+  return name
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+function displayGroupName(photo) {
+  return photo.group_name
+}
+
 function DecisionButtons({ photo, busy, onDecide, size = '' }) {
   return (
     <div className={`actions ${size}`}>
@@ -137,7 +150,7 @@ function Queue() {
     try {
       let update
       if (action === 'approve') {
-        const dest = `${photo.group_name}/${baseFile(photo)}`
+        const dest = `${slugifyGroup(photo.group_name)}/${baseFile(photo)}`
         const { error: cpErr } = await supabase.storage
           .from(PENDING_BUCKET)
           .copy(baseFile(photo), dest, { destinationBucket: APPROVED_BUCKET })
@@ -263,7 +276,7 @@ function Queue() {
                 <img src={urls[p.id]} alt={`${p.status} from ${p.group_name}`} loading="lazy" />
               </button>
               <div className="meta">
-                <span>{p.group_name}</span>
+                <span>{displayGroupName(p)}</span>
                 <span>{new Date(p.created_at).toLocaleString()}</span>
               </div>
               <DecisionButtons photo={p} busy={busyIds.has(p.id)} onDecide={decide} />
@@ -296,6 +309,10 @@ function Queue() {
             </button>
           )}
           <img src={urls[lbPhoto.id]} alt={`${lbPhoto.status} from ${lbPhoto.group_name}`} />
+          <div className="lightbox-meta">
+            <span className="lightbox-group">{displayGroupName(lbPhoto)}</span>
+            <span className="lightbox-date">{new Date(lbPhoto.created_at).toLocaleString()}</span>
+          </div>
           {lbIndex < visible.length - 1 && (
             <button
               className="nav next"
