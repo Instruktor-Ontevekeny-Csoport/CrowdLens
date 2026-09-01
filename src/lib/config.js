@@ -1,4 +1,3 @@
-// Placeholder group names — replace with the real list before the camp.
 // The values are stored in the database, so don't rename them after launch.
 export const GROUPS = [
   'A',
@@ -29,9 +28,30 @@ export const GROUPS = [
   'ID1',
   'ID2',
   'ID3',
+  'Cirka',
+  'Csillag',
+  'DekorChill',
+  'Fütyikocsi',
+  'Gyros',
+  'Joker',
+  'Hotdog',
+  'Kapu',
+  'Koktél',
+  'Maki',
+  'Parancsnoki Maca',
+  'Raktár-tesco',
+  'Piaraktár',
+  'Ranger',
+  'Söröző',
+  'Sörsátor',
+  'Teaház',
+  'Streetfood',
+  'Tábori rádió',
+  'KFT',
+  'Vezetőség',
 ]
 
-export const DAILY_LIMIT = 5
+export const DAILY_LIMIT = 3
 export const CAMP_TIMEZONE = 'Europe/Budapest'
 export const PENDING_BUCKET = 'pending'
 export const APPROVED_BUCKET = 'approved'
