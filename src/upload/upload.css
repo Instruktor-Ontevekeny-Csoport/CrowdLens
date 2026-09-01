@@ -147,6 +147,10 @@ body {
   flex: 1;
 }
 
+.shoot-area {
+  padding-bottom: 68px;
+}
+
 .group-label {
   display: flex;
   flex-direction: column;
@@ -308,7 +312,6 @@ body {
 
 .gallery-link {
   display: block;
-  margin: 8px 0 0;
   text-align: center;
   color: #221f1c;
   background: var(--film-yellow);
@@ -335,18 +338,19 @@ footer {
   justify-content: center;
   align-items: center;
   gap: 14px;
-  filter: invert(20%) sepia(48%);
+  margin-bottom: 8px;
+  filter: invert(20%) sepia(20%);
 }
 
 .org-logo {
-  width: 58px;
-  height: 58px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
   display: block;
 }
 
 .org-logo.maki {
-  width: 64px;
+  width: 58px;
 }
 
 .org-logo.iocs {
@@ -364,7 +368,6 @@ footer {
   color: var(--text-dim);
   font-size: 0.76rem;
   line-height: 1.4;
-  filter: invert(20%) sepia(48%);
 }
 
 .social-links {
@@ -372,7 +375,6 @@ footer {
   display: flex;
   justify-content: center;
   gap: 8px;
-  filter: invert(20%) sepia(48%);
 }
 
 .social-links a {
@@ -384,7 +386,7 @@ footer {
   border-radius: 50%;
   background: var(--body-2);
   border: 1px solid #4a453f;
-  color: var(--text);
+  color: var(--text-dim);
   text-decoration: none;
   font-size: 0.8rem;
   font-weight: 800;
@@ -409,7 +411,7 @@ footer {
   text-align: center;
   cursor: pointer;
   padding: 0;
-  margin-bottom: 12px;
+  margin-bottom: 36px;
 }
 
 .consent-link svg {
