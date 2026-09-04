@@ -13,6 +13,18 @@ function displayGroupName(photo) {
   return photo.group_name
 }
 
+function formatPhotoStamp(value) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+
+  return `${month}. ${day}. ${hours}:${minutes}`
+}
+
 export default function App() {
   const [lang, setLangState] = useState(getLang())
   const [group, setGroup] = useState('all')
@@ -59,7 +71,7 @@ export default function App() {
     setLightbox(null)
     let query = supabase
       .from('photos')
-      .select('id,storage_path,created_at')
+      .select('id,group_name,storage_path,created_at')
       .eq('status', 'approved')
       .order('created_at', { ascending: false })
     if (group !== 'all') query = query.eq('group_name', group)
@@ -131,8 +143,8 @@ export default function App() {
                 <img src={publicUrl(p.storage_path)} alt={tr('photoAlt')} loading="lazy" />
               </button>
               <p className="photo-meta">
+                <span>{formatPhotoStamp(p.created_at)}</span>
                 <span>{displayGroupName(p)}</span>
-                <span>{new Date(p.created_at).toLocaleString()}</span>
               </p>
             </li>
           ))}
@@ -166,7 +178,7 @@ export default function App() {
           <img src={publicUrl(photos[lightbox].storage_path)} alt={tr('photoAlt')} />
           <p className="lightbox-meta">
             <span>{displayGroupName(photos[lightbox])}</span>
-            <span>{new Date(photos[lightbox].created_at).toLocaleString()}</span>
+            <span>{formatPhotoStamp(photos[lightbox].created_at)}</span>
           </p>
           {lightbox < photos.length - 1 && (
             <button
@@ -183,10 +195,6 @@ export default function App() {
           <button className="close" aria-label={tr('close')}>
             ✕
           </button>
-          <p className="lightbox-meta">
-            <span>{displayGroupName(photos[lightbox])}</span>
-            <span>{new Date(photos[lightbox].created_at).toLocaleString()}</span>
-          </p>
         </div>
       )}
     </div>
