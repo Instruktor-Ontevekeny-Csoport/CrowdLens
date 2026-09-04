@@ -66,6 +66,28 @@ Open `/moderate/` on the deployed site and sign in. Every submitted photo waits 
 
 Video editors don't need a page: give them Supabase dashboard access (or a read-only member invite) and they can browse/download everything under the `approved` storage bucket, organised by group.
 
+## Storage backup / restore (CLI)
+
+Download full bucket contents:
+
+```sh
+npx supabase storage download --bucket approved --destination ./backup/approved
+npx supabase storage download --bucket pending --destination ./backup/pending
+```
+
+Upload (restore) full bucket contents:
+
+```sh
+npx supabase storage upload --bucket approved --source ./backup/approved --recursive
+npx supabase storage upload --bucket pending --source ./backup/pending --recursive
+```
+
+Notes:
+
+- Run commands against the correct project (use `npx supabase link --project-ref <ref>` first for cloud).
+- Use a service-role context for restore operations.
+- Restoring files does not update `photos.storage_path`; DB rows and storage objects must stay in sync.
+
 ## Operational notes
 
 - The 3/day limit is enforced server-side by a Postgres trigger keyed on a browser-stored token. Incognito/another browser resets the token — that's accepted; every photo still passes moderation, so a bypass only means more moderation work.
