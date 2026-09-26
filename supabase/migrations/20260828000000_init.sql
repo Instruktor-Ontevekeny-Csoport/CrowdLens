@@ -30,7 +30,7 @@ begin
     and submitted_date = new.submitted_date;
 
   -- Keep in sync with DAILY_LIMIT in src/lib/config.js.
-  if current_count >= 5 then
+  if current_count >= 3 then
     raise exception 'Daily photo limit reached';
   end if;
 
