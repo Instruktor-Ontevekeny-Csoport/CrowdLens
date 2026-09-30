@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test'
 import { GROUPS, DAILY_LIMIT } from '../src/lib/config.js'
-import { service, getToken, deleteRowsForToken, uploadOnce } from './helpers.mjs'
+import { service, resetSettings, getToken, deleteRowsForToken, uploadOnce } from './helpers.mjs'
 
 let token
+
+test.beforeAll(resetSettings)
 
 test.afterEach(async () => {
   await deleteRowsForToken(token)

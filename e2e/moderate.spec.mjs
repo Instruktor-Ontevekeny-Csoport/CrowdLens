@@ -5,9 +5,9 @@ const G = GROUPS.at(-1)
 import {
   service,
   ensureStaffUser,
+  resetSettings,
+  staffLogin,
   deleteRowsForToken,
-  STAFF_EMAIL,
-  STAFF_PASSWORD,
   TINY_JPEG,
 } from './helpers.mjs'
 
@@ -39,6 +39,7 @@ async function seedPending(name, group) {
 
 test.beforeAll(async () => {
   await ensureStaffUser()
+  await resetSettings()
   await deleteRowsForToken(TOKEN)
 })
 
@@ -50,10 +51,7 @@ test('staff logs in, approves one photo, rejects another', async ({ page }) => {
   const approveMe = await seedPending(`${TOKEN}-a`, G)
   const rejectMe = await seedPending(`${TOKEN}-b`, G)
 
-  await page.goto('/moderate/')
-  await page.getByPlaceholder('Email').fill(STAFF_EMAIL)
-  await page.getByPlaceholder('Password').fill(STAFF_PASSWORD)
-  await page.getByRole('button', { name: 'Sign in' }).click()
+  await staffLogin(page)
 
   await expect(page.getByRole('heading', { name: /Pending photos/ })).toBeVisible()
   // Filter to this test's group so unrelated pending photos don't interfere.
@@ -114,6 +112,10 @@ test('staff logs in, approves one photo, rejects another', async ({ page }) => {
   expect(rejected.status).toBe('rejected')
   expect(rejected.storage_path).toBe(`pending/${TOKEN}-b.jpg`)
 
+  // Approval moves the file: nothing is left behind in the private bucket.
+  const { data: leftovers } = await service.storage.from('pending').list('', { search: TOKEN })
+  expect(leftovers.map((f) => f.name)).toEqual([`${TOKEN}-b.jpg`])
+
   // Approved photo is publicly reachable; rejected one is not in the public bucket.
   const pub = service.storage.from('approved').getPublicUrl(`${slugifyGroup(G)}/${TOKEN}-a.jpg`)
   expect((await fetch(pub.data.publicUrl)).ok).toBe(true)
@@ -123,15 +125,14 @@ test('staff logs in, approves one photo, rejects another', async ({ page }) => {
 
 test('anonymous visitor cannot see the moderation queue', async ({ page }) => {
   await page.goto('/moderate/')
+  await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible()
+  await page.getByText('Sign in with email & password').click()
   await expect(page.getByPlaceholder('Email')).toBeVisible()
   await expect(page.getByRole('heading', { name: /Pending photos/ })).toHaveCount(0)
 })
 
 async function login(page) {
-  await page.goto('/moderate/')
-  await page.getByPlaceholder('Email').fill(STAFF_EMAIL)
-  await page.getByPlaceholder('Password').fill(STAFF_PASSWORD)
-  await page.getByRole('button', { name: 'Sign in' }).click()
+  await staffLogin(page)
   await expect(page.getByRole('heading', { name: /photos \(/ })).toBeVisible()
   await page.locator('.controls select').first().selectOption(G)
 }
@@ -139,7 +140,7 @@ async function login(page) {
 test('decisions can be reverted later from the approved/rejected tabs', async ({ page }) => {
   await deleteRowsForToken(TOKEN) // clear residue from earlier tests in this file
   const photo = await seedPending(`${TOKEN}-swap`, G)
-  const publicUrl = service.storage.from('approved').getPublicUrl(`${G}/${TOKEN}-swap.jpg`).data
+  const publicUrl = service.storage.from('approved').getPublicUrl(`${slugifyGroup(G)}/${TOKEN}-swap.jpg`).data
     .publicUrl
 
   await login(page)

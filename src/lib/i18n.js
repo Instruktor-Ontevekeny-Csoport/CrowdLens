@@ -1,4 +1,5 @@
 import { storageGet, storageSet } from './storage.js'
+import { CUSTOM_TAGLINE, CUSTOM_NOTICE, DAILY_LIMIT } from './config.js'
 
 const LANG_KEY = 'cl_lang'
 
@@ -29,9 +30,11 @@ const strings = {
         '\n' +
         'A feltöltött képek a Gólyatáborral kapcsolatos kommunikációs felületeken – így különösen a közösségi médiában és egyéb hivatalos felületeken – közzétételre kerülhetnek.\n' +
         '\n' +
-        'A fotó feltöltésével kijelented, hogy a kép feltöltésére jogosult vagy, és annak feltöltésével, valamint a fentiek szerinti felhasználásával kapcsolatban harmadik személy jogát nem sérted.\n' +
-        '\n' +
-        'Naponta legfeljebb 3 képet tölthetsz fel.',
+        'A fotó feltöltésével kijelented, hogy a kép feltöltésére jogosult vagy, és annak feltöltésével, valamint a fentiek szerinti felhasználásával kapcsolatban harmadik személy jogát nem sérted.',
+    dailyLimitLine: 'Naponta legfeljebb {n} képet tölthetsz fel.',
+    submissionsClosed: 'A képbeküldés jelenleg zárva van. 🔒',
+    submissionsClosedHint: 'A galériát továbbra is megnézheted.',
+    groupInvalid: 'Ez a csapat már nem választható. Frissítsd az oldalt, és válassz újra!',
     noticeLink: 'Fontos információ',
     importantNotice: 'Fontos információ',
     officialPhotos: 'Kövesd a MAKI-t a hivatalos fotókért',
@@ -72,9 +75,11 @@ const strings = {
         '\n' +
         'Uploaded photos may be published on communication channels related to the Freshman Camp, including, in particular, social media platforms and other official channels.\n' +
         '\n' +
-        'By uploading a photo, you declare that you are authorized to upload the photo and that its upload and use as described above do not infringe upon the rights of any third party.\n' +
-        '\n' +
-        'You may upload a maximum of 3 photos per day.',
+        'By uploading a photo, you declare that you are authorized to upload the photo and that its upload and use as described above do not infringe upon the rights of any third party.',
+    dailyLimitLine: 'You may upload a maximum of {n} photos per day.',
+    submissionsClosed: 'Photo submissions are closed right now. 🔒',
+    submissionsClosedHint: 'You can still browse the gallery.',
+    groupInvalid: 'This group is no longer available. Refresh the page and pick again!',
     noticeLink: 'Important notice',
     importantNotice: 'Important notice',
     officialPhotos: 'Follow MAKI for the official photos',
@@ -104,6 +109,19 @@ export function setLang(lang) {
 
 export function t(key, lang = getLang()) {
   return strings[lang]?.[key] ?? strings.hu[key] ?? key
+}
+
+// Organizer-defined texts override the built-in ones when non-empty.
+export function getTagline(lang = getLang()) {
+  return CUSTOM_TAGLINE[lang] || t('tagline', lang)
+}
+
+export function defaultNotice(lang = getLang(), limit = DAILY_LIMIT) {
+  return `${t('consent', lang)}\n\n${t('dailyLimitLine', lang).replace('{n}', limit)}`
+}
+
+export function getNotice(lang = getLang()) {
+  return CUSTOM_NOTICE[lang] || defaultNotice(lang)
 }
 
 // Exposed for the completeness test.

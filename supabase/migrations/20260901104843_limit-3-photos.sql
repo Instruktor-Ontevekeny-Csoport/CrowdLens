@@ -12,7 +12,7 @@ from photos
 where client_token = new.client_token
   and submitted_date = new.submitted_date;
 
--- Keep in sync with DAILY_LIMIT in src/lib/config.js.
+-- Superseded by 20260930000000_admin_settings_roles.sql (limit read from app_settings).
 if current_count >= 3 then
     raise exception 'Daily photo limit reached';
 end if;

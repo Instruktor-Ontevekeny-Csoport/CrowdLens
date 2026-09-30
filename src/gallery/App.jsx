@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { GROUPS, APPROVED_BUCKET } from '../lib/config.js'
+import { GROUPS, GROUP_MODE, APPROVED_BUCKET } from '../lib/config.js'
 import { t, getLang, setLang, LANGS } from '../lib/i18n.js'
 import { supabase } from '../lib/supabase.js'
 import './gallery.css'
@@ -10,7 +10,7 @@ function publicUrl(storagePath) {
 }
 
 function displayGroupName(photo) {
-  return photo.group_name
+  return photo.group_name ?? ''
 }
 
 function formatPhotoStamp(value) {
@@ -74,7 +74,7 @@ export default function App() {
       .select('id,group_name,storage_path,created_at')
       .eq('status', 'approved')
       .order('created_at', { ascending: false })
-    if (group !== 'all') query = query.eq('group_name', group)
+    if (GROUP_MODE && group !== 'all') query = query.eq('group_name', group)
     query.then(({ data }) => {
       if (!cancelled) setPhotos(data ?? [])
     })
@@ -114,19 +114,21 @@ export default function App() {
         📸 {tr('backToCamera')}
       </a>
 
-      <select
-        className="group-select"
-        value={group}
-        onChange={(e) => setGroup(e.target.value)}
-        aria-label={tr('yourGroup')}
-      >
-        <option value="all">{tr('allGroups')}</option>
-        {GROUPS.map((g) => (
-          <option key={g} value={g}>
-            {g}
-          </option>
-        ))}
-      </select>
+      {GROUP_MODE && (
+        <select
+          className="group-select"
+          value={group}
+          onChange={(e) => setGroup(e.target.value)}
+          aria-label={tr('yourGroup')}
+        >
+          <option value="all">{tr('allGroups')}</option>
+          {GROUPS.map((g) => (
+            <option key={g} value={g}>
+              {g}
+            </option>
+          ))}
+        </select>
+      )}
 
       {photos === null ? (
         <p className="empty">{tr('loading')}</p>
@@ -144,7 +146,7 @@ export default function App() {
               </button>
               <p className="photo-meta">
                 <span>{formatPhotoStamp(p.created_at)}</span>
-                <span>{displayGroupName(p)}</span>
+                {GROUP_MODE && <span>{displayGroupName(p)}</span>}
               </p>
             </li>
           ))}
@@ -177,7 +179,7 @@ export default function App() {
           )}
           <img src={publicUrl(photos[lightbox].storage_path)} alt={tr('photoAlt')} />
           <p className="lightbox-meta">
-            <span>{displayGroupName(photos[lightbox])}</span>
+            {GROUP_MODE && <span>{displayGroupName(photos[lightbox])}</span>}
             <span>{formatPhotoStamp(photos[lightbox].created_at)}</span>
           </p>
           {lightbox < photos.length - 1 && (
