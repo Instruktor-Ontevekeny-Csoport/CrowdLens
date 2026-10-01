@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:backend": "node scripts/backend-test.mjs",
+    "bootstrap-admin": "node scripts/bootstrap-admin.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test"
   },

@@ -1,7 +1,13 @@
 import { useRef, useState } from 'react'
 import { FaInstagram, FaFacebookF, FaInfoCircle } from 'react-icons/fa'
-import { GROUPS, DAILY_LIMIT, PENDING_BUCKET } from '../lib/config.js'
-import { t, getLang, setLang, LANGS } from '../lib/i18n.js'
+import {
+  GROUPS,
+  DAILY_LIMIT,
+  GROUP_MODE,
+  SUBMISSIONS_OPEN,
+  PENDING_BUCKET,
+} from '../lib/config.js'
+import { t, getLang, setLang, getTagline, getNotice, LANGS } from '../lib/i18n.js'
 import {
   getClientToken,
   getTodayCount,
@@ -17,17 +23,23 @@ import './upload.css'
 
 export default function App() {
   const [lang, setLangState] = useState(getLang())
-  const [group, setGroup] = useState(getLastGroup() ?? '')
+  const [group, setGroup] = useState(() => {
+    const last = getLastGroup()
+    return GROUPS.includes(last) ? last : ''
+  })
   const [used, setUsed] = useState(getTodayCount())
   const [photo, setPhoto] = useState(null) // { blob, previewUrl }
   const [phase, setPhase] = useState('idle') // idle | preview | sending | success
   const [error, setError] = useState(null)
   const [noticeOpen, setNoticeOpen] = useState(false)
+  // Also set when the server rejects an upload from a stale page.
+  const [closed, setClosed] = useState(!SUBMISSIONS_OPEN)
   const cameraRef = useRef(null)
   const galleryRef = useRef(null)
 
   const remaining = remainingToday()
   const tr = (key) => t(key, lang)
+  const canShoot = !GROUP_MODE || Boolean(group)
 
   function switchLang(l) {
     setLang(l)
@@ -58,7 +70,7 @@ export default function App() {
   }
 
   async function submit() {
-    if (!photo || !group) return
+    if (!photo || !canShoot) return
     setPhase('sending')
     setError(null)
     try {
@@ -68,12 +80,17 @@ export default function App() {
       const { error: upErr } = await supabase.storage
         .from(PENDING_BUCKET)
         .upload(photo.path, photo.blob, { contentType: 'image/jpeg' })
+      if (upErr && /row-level security|violates/i.test(upErr.message)) {
+        discardPhoto()
+        setClosed(true)
+        return
+      }
       // A duplicate means a previous retry already uploaded this photo.
       if (upErr && !/exist|duplicate/i.test(upErr.message)) throw upErr
 
       const { error: dbErr } = await supabase.from('photos').insert({
         client_token: getClientToken(),
-        group_name: group,
+        group_name: GROUP_MODE ? group : null,
         storage_path: `${PENDING_BUCKET}/${photo.path}`,
       })
       if (dbErr) {
@@ -84,11 +101,22 @@ export default function App() {
           setError(tr('limitReachedServer'))
           return
         }
+        if (/submissions are closed/i.test(dbErr.message)) {
+          discardPhoto()
+          setClosed(true)
+          return
+        }
+        if (/invalid group/i.test(dbErr.message)) {
+          discardPhoto()
+          setGroup('')
+          setError(tr('groupInvalid'))
+          return
+        }
         throw dbErr
       }
 
       setUsed(incrementTodayCount())
-      setLastGroup(group)
+      if (GROUP_MODE) setLastGroup(group)
       URL.revokeObjectURL(photo.previewUrl)
       setPhoto(null)
       setPhase('success')
@@ -122,14 +150,16 @@ export default function App() {
         </div>
       </header>
 
-      <p className="tagline">{tr('tagline')}</p>
+      <p className="tagline">{getTagline(lang)}</p>
 
       <div className="counter-window" aria-label={tr('shotsLeft')}>
-        <div className="frames">
-          {Array.from({ length: DAILY_LIMIT }, (_, i) => (
-            <span key={i} className={`frame ${i < used ? 'used' : ''}`} aria-hidden="true" />
-          ))}
-        </div>
+        {DAILY_LIMIT <= 10 && (
+          <div className="frames">
+            {Array.from({ length: DAILY_LIMIT }, (_, i) => (
+              <span key={i} className={`frame ${i < used ? 'used' : ''}`} aria-hidden="true" />
+            ))}
+          </div>
+        )}
         <span className="counter-text">
           {remaining} {tr('shotsLeft')}
         </span>
@@ -141,7 +171,12 @@ export default function App() {
         </p>
       )}
 
-      {filmFull && phase !== 'preview' ? (
+      {closed ? (
+        <div className="film-full">
+          <p className="film-full-title">{tr('submissionsClosed')}</p>
+          <p>{tr('submissionsClosedHint')}</p>
+        </div>
+      ) : filmFull && phase !== 'preview' ? (
         <div className="film-full">
           <p className="film-full-title">{tr('filmFull')}</p>
           <p>{tr('filmFullHint')}</p>
@@ -154,19 +189,21 @@ export default function App() {
               <p>{tr('uploadSuccessHint')}</p>
             </div>
           )}
-          <label className="group-label">
-            {tr('yourGroup')}
-            <select value={group} onChange={(e) => setGroup(e.target.value)}>
-              <option value="" disabled>
-                {tr('chooseGroup')}
-              </option>
-              {GROUPS.map((g) => (
-                <option key={g} value={g}>
-                  {g}
+          {GROUP_MODE && (
+            <label className="group-label">
+              {tr('yourGroup')}
+              <select value={group} onChange={(e) => setGroup(e.target.value)}>
+                <option value="" disabled>
+                  {tr('chooseGroup')}
                 </option>
-              ))}
-            </select>
-          </label>
+                {GROUPS.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
           <input
             ref={cameraRef}
@@ -178,13 +215,13 @@ export default function App() {
           />
           <input ref={galleryRef} type="file" accept="image/*" onChange={onFileSelected} hidden />
 
-          <button className="shutter" onClick={() => cameraRef.current.click()} disabled={!group}>
+          <button className="shutter" onClick={() => cameraRef.current.click()} disabled={!canShoot}>
             <span className="shutter-ring">
               <span className="shutter-core" />
             </span>
             {tr('takePhoto')}
           </button>
-          <button className="gallery-pick" onClick={() => galleryRef.current.click()} disabled={!group}>
+          <button className="gallery-pick" onClick={() => galleryRef.current.click()} disabled={!canShoot}>
             {tr('pickFromGallery')}
           </button>
         </main>
@@ -197,7 +234,7 @@ export default function App() {
             <button className="secondary" onClick={discardPhoto} disabled={phase === 'sending'}>
               {tr('cancel')}
             </button>
-            <button className="primary" onClick={submit} disabled={phase === 'sending' || !group}>
+            <button className="primary" onClick={submit} disabled={phase === 'sending' || !canShoot}>
               {phase === 'sending' ? tr('sending') : error ? tr('retry') : tr('send')}
             </button>
           </div>
@@ -240,7 +277,7 @@ export default function App() {
             </button>
 
             <h2>{tr('importantNotice')}</h2>
-            <p className="notice-text">{tr('consent')}</p>
+            <p className="notice-text">{getNotice(lang)}</p>
           </div>
         </div>
       )}

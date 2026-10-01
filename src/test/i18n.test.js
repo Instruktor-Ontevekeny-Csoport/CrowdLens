@@ -1,5 +1,6 @@
 import { beforeEach } from 'vitest'
-import { t, getLang, setLang, _tables, LANGS } from '../lib/i18n.js'
+import { t, getLang, setLang, getTagline, getNotice, _tables, LANGS } from '../lib/i18n.js'
+import { DAILY_LIMIT } from '../lib/config.js'
 
 beforeEach(() => {
   localStorage.clear()
@@ -32,4 +33,16 @@ test('missing key falls back to Hungarian, then key itself', () => {
 test('hu and en tables have identical keys', () => {
   const [hu, en] = LANGS.map((l) => Object.keys(_tables[l]).sort())
   expect(en).toEqual(hu)
+})
+
+test('tagline and notice fall back to the built-in texts', () => {
+  expect(getTagline('hu')).toBe(t('tagline', 'hu'))
+  expect(getTagline('en')).toBe(t('tagline', 'en'))
+  expect(getNotice('en').startsWith(t('consent', 'en'))).toBe(true)
+})
+
+test('default notice ends with the dynamic daily-limit line', () => {
+  expect(getNotice('hu')).toContain(`Naponta legfeljebb ${DAILY_LIMIT} képet tölthetsz fel.`)
+  expect(getNotice('en')).toContain(`You may upload a maximum of ${DAILY_LIMIT} photos per day.`)
+  expect(getNotice('en')).not.toContain('{n}')
 })

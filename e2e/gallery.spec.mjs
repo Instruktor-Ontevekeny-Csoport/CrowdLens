@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { GROUPS } from '../src/lib/config.js'
-import { service, deleteRowsForToken, TINY_JPEG } from './helpers.mjs'
+import { service, resetSettings, deleteRowsForToken, TINY_JPEG } from './helpers.mjs'
 
 const G_MAIN = GROUPS.at(-4)
 const G_OTHER = GROUPS.at(-3)
@@ -31,6 +31,7 @@ async function seed(name, group, status) {
 }
 
 test.beforeAll(async () => {
+  await resetSettings()
   await deleteRowsForToken(TOKEN)
   await seed(`${TOKEN}-ok1`, G_MAIN, 'approved')
   await seed(`${TOKEN}-ok2`, G_MAIN, 'approved')
