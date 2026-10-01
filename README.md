@@ -27,7 +27,8 @@ Tests:
 ```sh
 npm test                    # unit + component tests (vitest)
 npm run test:backend        # trigger/RLS/role-matrix/storage-policy integration tests
-                            # needs SUPABASE_ANON_KEY + SUPABASE_SERVICE_ROLE_KEY env vars
+                            # needs SUPABASE_URL + SUPABASE_ANON_KEY + SUPABASE_SERVICE_ROLE_KEY env vars
+                            # (vars need to be exported to shell)
 npm run test:e2e            # real-browser end-to-end tests (playwright)
 ```
 
@@ -57,6 +58,8 @@ npm run test:e2e            # real-browser end-to-end tests (playwright)
    npm run bootstrap-admin
    ```
 
+   (Enabling data API access on the staff_users table was necessary for this script to run.)
+
    It adds `FIRST_ADMIN_EMAIL` to the staff allowlist as `admin` (safe to re-run). Everyone else is added by an admin on `/moderate/` → Users. Password accounts that existed before this migration have no access until their email is on the list. If every admin is ever lost, run the script again (or `insert into staff_users(email, role) values ('<email>', 'admin');` in the SQL editor).
 5. **Enable Google sign-in**:
    1. Google Cloud Console → create an OAuth client (type: Web). Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`.
@@ -65,6 +68,9 @@ npm run test:e2e            # real-browser end-to-end tests (playwright)
    4. Authentication → Sign In / Providers → Email: keep "Confirm email" **on** (roles only apply to confirmed emails).
 
    Anyone with a Google account can sign in, but only allowlisted emails get any access — others see a "no access" screen. Optional hardening: a "Before user created" Auth hook that rejects emails missing from `staff_users`.
+
+   > [!WARNING]  
+   > Note: Users need to be added as test users in the Google Cloud Console unless the OAuth client is verified.
 
    Staff without a Google account: create the user in the dashboard (Authentication → Users → "Add user", email + password, confirm manually) and add the same email on `/moderate/` → Users; they use "Sign in with email & password".
 6. **Deploy**: `npm run build`, then upload `dist/` to the host (or let a Git-connected host run the build with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` set). The build reads the settings from the database and bakes them into the pages; it fails if the database is unreachable, so a deploy never silently ships default settings (`ALLOW_DEFAULT_SETTINGS=1` overrides).
