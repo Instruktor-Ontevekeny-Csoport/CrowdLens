@@ -259,10 +259,10 @@ export default function App() {
         <div className="footer-follow" aria-label="Follow us">
           <span className="follow-text">{tr('officialPhotos')}</span>
           <div className="social-links">
-            <a href="https://www.instagram.com/" target="_blank" rel="noreferrer" aria-label="Instagram">
+            <a href="https://www.instagram.com/makinsights/" target="_blank" rel="noreferrer" aria-label="Instagram">
               <FaInstagram />
             </a>
-            <a href="https://www.facebook.com/" target="_blank" rel="noreferrer" aria-label="Facebook">
+            <a href="https://www.facebook.com/makinsights" target="_blank" rel="noreferrer" aria-label="Facebook">
               <FaFacebookF />
             </a>
           </div>
